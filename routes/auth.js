@@ -12,6 +12,9 @@ router.post("/register", async (request, response) => {
       request.body.password,
       process.env.PASSWORD_SECRET
     ).toString(),
+    gender:  request.body.gender,
+    img: request.body.img,
+    fullName: request.body.fullName
   });
 
   try {
