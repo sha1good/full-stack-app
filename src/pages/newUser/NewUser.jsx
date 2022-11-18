@@ -32,7 +32,7 @@ export default function NewUser() {
         <div className="newUserItem">
           <label>Gender</label>
           <div className="newUserGender">
-            <input type="radio" name="gender" id="male" value="male" />
+            <input type="radio" name="gender" id="male" value="male"  />
             <label for="male">Male</label>
             <input type="radio" name="gender" id="female" value="female" />
             <label for="female">Female</label>
@@ -43,6 +43,13 @@ export default function NewUser() {
         <div className="newUserItem">
           <label>Active</label>
           <select className="newUserSelect" name="active" id="active">
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+        <div className="newUserItem">
+          <label>IsAdmin</label>
+          <select className="newUserSelect" name="isAdmin" id="isAdmin">
             <option value="yes">Yes</option>
             <option value="no">No</option>
           </select>

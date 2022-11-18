@@ -6,11 +6,44 @@ import {
   PhoneAndroid,
   Publish,
 } from "@material-ui/icons";
-import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { Link, useLocation,useHistory } from "react-router-dom";
 import "./user.css";
+import { useState } from "react";
+import { useDispatch } from "react-redux"
+import { updateUser } from "../../redux/apiCalls";
+import Notification from "../../UI/Notification";
+import { Fragment } from "react";
 
 export default function User() {
+
+  const [input, setInput] = useState({})
+  const dispatch = useDispatch(); 
+  const location = useLocation();
+  const history = useHistory();
+  const [notify, setNotify ] = useState({
+    isOpen:false,
+    message: "",
+    type: ""
+  })
+  const userId = location.pathname.split("/")[2];
+  const user = useSelector((state) =>
+    state.user.users.find((user) => user._id === userId)
+  );
+  
+   const handleChange = (event) =>{
+       setInput((prev) =>{
+           return{ ...prev, [event.target.name]: event.target.value}
+       })
+   }
+ const handleUpdate = (event) =>{
+     event.preventDefault();
+     updateUser(userId, input, dispatch)
+     setNotify({isOpen: true, message:"Updated Succesfully",type:"success"})
+     history.push("/users")
+  }  
   return (
+    <Fragment>
     <div className="user">
       <div className="userTitleContainer">
         <h1 className="userTitle">Edit User</h1>
@@ -22,20 +55,24 @@ export default function User() {
         <div className="userShow">
           <div className="userShowTop">
             <img
-              src="https://images.pexels.com/photos/1152994/pexels-photo-1152994.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500"
+              src={
+                user.img
+                  ? user.img
+                  : "https://images.pexels.com/photos/1152994/pexels-photo-1152994.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500"
+              }
               alt=""
               className="userShowImg"
             />
             <div className="userShowTopTitle">
-              <span className="userShowUsername">Anna Becker</span>
-              <span className="userShowUserTitle">Software Engineer</span>
+              <span className="userShowUsername">{user?.username}</span>
+              {/* <span className="userShowUserTitle">Software Engineer</span> */}
             </div>
           </div>
           <div className="userShowBottom">
             <span className="userShowTitle">Account Details</span>
             <div className="userShowInfo">
               <PermIdentity className="userShowIcon" />
-              <span className="userShowInfoTitle">annabeck99</span>
+              <span className="userShowInfoTitle">{user?.username}</span>
             </div>
             <div className="userShowInfo">
               <CalendarToday className="userShowIcon" />
@@ -44,15 +81,19 @@ export default function User() {
             <span className="userShowTitle">Contact Details</span>
             <div className="userShowInfo">
               <PhoneAndroid className="userShowIcon" />
-              <span className="userShowInfoTitle">+1 123 456 67</span>
+              <span className="userShowInfoTitle">+234 906 633 3575</span>
             </div>
             <div className="userShowInfo">
               <MailOutline className="userShowIcon" />
-              <span className="userShowInfoTitle">annabeck99@gmail.com</span>
+              <span className="userShowInfoTitle">{user?.email}</span>
             </div>
             <div className="userShowInfo">
               <LocationSearching className="userShowIcon" />
               <span className="userShowInfoTitle">New York | USA</span>
+            </div>
+            <div className="userShowInfo">
+              <span className="userShowIcon">Is Admin:</span>
+              <span className="userShowInfoTitle">{user?.isAdmin}</span>
             </div>
           </div>
         </div>
@@ -63,28 +104,34 @@ export default function User() {
               <div className="userUpdateItem">
                 <label>Username</label>
                 <input
+                  name="username"
                   type="text"
-                  placeholder="annabeck99"
+                  placeholder={user?.username}
                   className="userUpdateInput"
+                  onChange={handleChange}
                 />
               </div>
               <div className="userUpdateItem">
                 <label>Full Name</label>
                 <input
+                  name ="fullName"
                   type="text"
-                  placeholder="Anna Becker"
+                  placeholder={user?.fullName}
                   className="userUpdateInput"
+                  onChange={handleChange}
                 />
               </div>
               <div className="userUpdateItem">
                 <label>Email</label>
                 <input
+                  name= "email"
                   type="text"
-                  placeholder="annabeck99@gmail.com"
+                  placeholder={user?.email}
                   className="userUpdateInput"
+                  onChange={handleChange}
                 />
               </div>
-              <div className="userUpdateItem">
+              {/* <div className="userUpdateItem">
                 <label>Phone</label>
                 <input
                   type="text"
@@ -99,13 +146,25 @@ export default function User() {
                   placeholder="New York | USA"
                   className="userUpdateInput"
                 />
+              </div> */}
+              <div className="userUpdateItem">
+                <label>IsAdmin?</label>
+                <select name="isAdmin"  onChange={handleChange}>
+                  <option disabled defaultValue>False</option>
+                  <option value="true">True</option>
+                  <option value="false">False</option>
+                </select>
               </div>
             </div>
             <div className="userUpdateRight">
               <div className="userUpdateUpload">
                 <img
                   className="userUpdateImg"
-                  src="https://images.pexels.com/photos/1152994/pexels-photo-1152994.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500"
+                  src={
+                    user.img
+                      ? user.img
+                      : "https://images.pexels.com/photos/1152994/pexels-photo-1152994.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500"
+                  }
                   alt=""
                 />
                 <label htmlFor="file">
@@ -113,11 +172,13 @@ export default function User() {
                 </label>
                 <input type="file" id="file" style={{ display: "none" }} />
               </div>
-              <button className="userUpdateButton">Update</button>
+              <button className="userUpdateButton" onClick={handleUpdate}>Update</button>
             </div>
           </form>
         </div>
       </div>
     </div>
+    <Notification notify={notify} setNotify={setNotify}/>
+    </Fragment>
   );
 }

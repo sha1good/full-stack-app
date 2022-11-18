@@ -3,17 +3,57 @@ import { DataGrid } from "@material-ui/data-grid";
 import { DeleteOutline } from "@material-ui/icons";
 import { userRows } from "../../dummyData";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { deleteUser, getUsers } from "../../redux/apiCalls";
+import { Fragment } from "react";
+import Notification from "../../UI/Notification";
+import ConfirmDialog from "../../UI/ConfirmDialog";
+import { useHistory } from "react-router-dom";
 
 export default function UserList() {
-  const [data, setData] = useState(userRows);
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const users = useSelector((state) => state.user.users);
+  //console.log(users)
+  //const [data, setData] = useState(userRows);
+  const [notify, setNotify] = useState({
+    isOpen: false,
+    message: "",
+    type: "",
+  });
 
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    title: "",
+    subTitle: "",
+  });
   const handleDelete = (id) => {
-    setData(data.filter((item) => item.id !== id));
+    //setData(data.filter((item) => item.id !== id));
+    setConfirmDialog({
+      ...ConfirmDialog,
+      isOpen: false,
+    });
+    deleteUser(id, dispatch);
+    setNotify({
+      isOpen: true,
+      message: "Deleted Succesfully",
+      type: "error",
+    });
+    history.push("/users");
   };
-  
+
+  useEffect(() => {
+    getUsers(dispatch);
+  }, [dispatch]);
+
+  const userObject = users.map((item, i) => ({
+    ...item,
+    status: userRows[i].status,
+    transaction: userRows[i].transaction,
+  }));
   const columns = [
-    { field: "id", headerName: "ID", width: 90 },
+    { field: "_id", headerName: "ID", width: 220 },
     {
       field: "user",
       headerName: "User",
@@ -21,7 +61,15 @@ export default function UserList() {
       renderCell: (params) => {
         return (
           <div className="userListUser">
-            <img className="userListImg" src={params.row.avatar} alt="" />
+            <img
+              className="userListImg"
+              src={
+                params.row?.img
+                  ? params.row.img
+                  : "https://images.pexels.com/photos/1526814/pexels-photo-1526814.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500"
+              }
+              alt=""
+            />
             {params.row.username}
           </div>
         );
@@ -45,12 +93,19 @@ export default function UserList() {
       renderCell: (params) => {
         return (
           <>
-            <Link to={"/user/" + params.row.id}>
+            <Link to={"/user/" + params.row._id}>
               <button className="userListEdit">Edit</button>
             </Link>
             <DeleteOutline
               className="userListDelete"
-              onClick={() => handleDelete(params.row.id)}
+              onClick={() =>
+                setConfirmDialog({
+                  isOpen: true,
+                  title: "Are you sure you want to delete this user?",
+                  subTitle: "deleting of user can be done",
+                  onConfirm: () => { handleDelete(params.row._id)},
+                })
+              }
             />
           </>
         );
@@ -59,14 +114,23 @@ export default function UserList() {
   ];
 
   return (
-    <div className="userList">
-      <DataGrid
-        rows={data}
-        disableSelectionOnClick
-        columns={columns}
-        pageSize={8}
-        checkboxSelection
+    <Fragment>
+      <div className="userList">
+        <DataGrid
+          rows={userObject}
+          columns={columns}
+          pageSize={8}
+          checkboxSelection
+          // key={userObject.id}
+          getRowId={(row) => row._id}
+          disableSelectionOnClick
+        />
+      </div>
+      <Notification notify={notify} setNotify={setNotify} />
+      <ConfirmDialog
+        confirmDialog={confirmDialog}
+        setConfirmDialog={setConfirmDialog}
       />
-    </div>
+    </Fragment>
   );
 }
