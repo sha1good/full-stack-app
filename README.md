@@ -2,7 +2,7 @@
 
 # Getting Started with Create React App
 
-## This project consist of three branches (the client part(built with react), api branch (Nodejs) and Admin(built with react))
+## This project consist of three branches (the main branch(built with react), api branch (Nodejs) and Admin(built with react))
 
 In the project directory, you can run:
 
