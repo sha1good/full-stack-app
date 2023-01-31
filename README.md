@@ -2,9 +2,7 @@
 
 # Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-
-## Available Scripts
+## This project consist of three branches (the client part(built with react), api branch (Nodejs) and Admin(built with react))
 
 In the project directory, you can run:
 
